@@ -1,10 +1,10 @@
 section .data
-	mensaje db "EL incremento de 2 es ",0x0A,0x0D     ;0x0A --Salto de linea
+	msg db "EL incremento de 2 es ",0x0A,0x0D     ;0x0A --Salto de linea
 													  ;0x0D --Salto de carro
-	tamanio equ $ -mensaje
+	tamanio equ $-msg
 	
 	mensaje1 db 0x0A,"El decremento de 2 es",0x0D
-	tamanio1 equ $ -mensaje1
+	tamanio1 equ $-mensaje1
 	
 	mensaje 2 db 0x0A, "La suma de 2+2 es",0x0A,0x0D
 	tamanio2 equ $-mensaje2
@@ -16,10 +16,10 @@ section .text
 	global _start
 
 	_start:
-: ---Impresion del primer mensaje --
+; ---Impresion del primer mensaje --
 		mov eax,4
 		mov ebx,1
-		mov ecx,mensaje
+		mov ecx,msg
 		mov edx,tamanio
 		int 80h
 ;operacion de incremento 
