@@ -11,8 +11,20 @@ section .data
 	mensaje3 db 0x0A, "La resta de 6 y 4 es "
 	tam3 equ $-mensaje3
 
+	mensaje4 db 0x0A, "La multiplicacion de 3 y 3 es "
+	tam4 equ $-mensaje4
+
+	mensaje5 db 0x0A, "La division de 5 y 2 es "
+	tam5 equ $-mensaje5
+
+	mensaje6 db 0x0A, "La multiplicacion con signo de -3 y 2 es "
+	tam6 equ $-mensaje6
+
+	mensajeR db " el residuo es "
+	tam7 equ $-mensajeR
 section .bss
 	resultado resb 1
+	resultado1 resb 2
 
 section .text
 	global _start
@@ -89,10 +101,57 @@ section .text
 	mov edx,1
 	int 80h
 ;impresion del quinto mensaje 
+	mov eax,4
+	mov ebx,1
+	mov ecx,mensaje4
+	mov edx,tam4
+	int 80h
 
 ;operacion de multiplicacion
-
+	mov eax, 0x03
+	mov ebx, 0x03
+	mul ebx
+	add eax,'0'
+	mov [resultado1],eax
 ;impresion del resultado de la multiplicacion 
+	mov eax,4
+	mov ebx,1
+	mov ecx,resultado1
+	mov edx,2
+	int 80h
+
+;impresion del sexto mensaje 
+	mov eax,4
+	mov ebx,1
+	mov ecx,mensaje5
+	mov edx,tam5
+	int 80h
+;operacion de division
+	mov al, 0x05
+	mov bl, 0x02
+	div bl
+	add al,'0'
+	add ah, '0'
+	mov [resultado1],al
+	mov [resultado],ah
+;impresion del resultado de la multiplicacion
+	mov eax,4
+	mov ebx,1
+	mov ecx,resultado1
+	mov edx,2
+	int 80h
+;impresion del mensajeR de la multiplicacion
+	mov eax,4
+	mov ebx,1
+	mov ecx,mensajeR
+	mov edx,tam7
+	int 80h
+;impresion del residuo de la multiplicacion
+	mov eax,4
+	mov ebx,1
+	mov ecx,resultado
+	mov edx,1
+	int 80h
 
 ;fin del programa 
 	mov rax,1
