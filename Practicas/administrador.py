@@ -84,7 +84,7 @@ def analisis_cpu(informacion):
 	imprimir_analisis_cpu(cpu)
 	
 def imprimir_analisis_cpu(cpu):
-	try:
+	try:22
 		if(cpu[0]!='intr' and cpu[0]!='softirq'):
 			total=int(cpu[1])+int(cpu[2])+int(cpu[3])+int(cpu[4])+int(cpu[5])+int(cpu[6])+int(cpu[7])
 			valor=int(cpu[1])+int(cpu[2])+int(cpu[3])+int(cpu[6])+int(cpu[7])
@@ -100,12 +100,12 @@ def uso_disco():
 		archivo=open("/proc/diskstats")
 	except:
 		print("Error al abrir el archivo")
-
+	print("-------------------------Informacion del disco duro----------------------")
 	for line in archivo.readlines():
 		if(line.find("sd")!=-1):
 			info_disco.append(line)
 	analisis_disco(info_disco)
-
+	archivo.close()
 def analisis_disco(info_disco):
 	for info in info_disco:
 		imprimir_analisis_disco(info)
@@ -123,11 +123,11 @@ def imprimir_analisis_disco(info):
 	print("Disco: "+list_info[2])
 	print("Lecturas realizadas: "+list_info[3])
 	print("Num Sectores leidos: "+list_info[5])
-	print("Tiempo de lectura: "+"%6.2f" % (float(list_info[6])*0.001) +" seg")
+	print("Tiempo de lectura: "+"%6.2f" % (float(list_info[6])*0.04) +" seg")
 	print("Escrituras completas: "+list_info[7])
 	print("Num sectores escritos: "+list_info[9])
-	print("Tiempo de escritura: "+"%6.2f" % (float(list_info[10])*0.01) +" seg")
-	print("Tiempo de I/O: "+"%6.2f" % (float(list_info[12])*0.01) +" seg")	
+	print("Tiempo de escritura: "+"%6.2f" % (float(list_info[10])*0.04) +" seg")
+	print("Tiempo de I/O: "+"%6.2f" % (float(list_info[12])*0.04) +" seg")	
 
 
 

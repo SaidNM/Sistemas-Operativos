@@ -152,6 +152,43 @@ section .text
 	mov ecx,resultado
 	mov edx,1
 	int 80h
+;impresion del mensaje de la multiplicacion con signo
+	mov eax,4
+	mov ebx,1
+	mov ecx,mensaje6
+	mov edx,tam6
+	int 80h
+
+;multiplicacion con signo 
+	mov al,-3
+	mov bl,2
+	imul bl 
+	mov [resultado],al
+
+	mov al,[resultado]
+	neg al
+		js print_imul
+	mov [resultado],al
+
+
+	mov eax,4
+	mov ebx,1
+	mov ecx,resultado
+	mov edx,1
+	int 80h
+
+	print_imul:
+	xor al,al
+	mov al,[resultado]
+	add al,'0'
+	mov [resultado],al
+
+	mov eax,4
+	mov ebx,1
+	mov ecx,resultado
+	add edx,1
+	int 80h
+
 
 ;fin del programa 
 	mov rax,1
