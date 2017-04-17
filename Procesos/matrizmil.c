@@ -51,6 +51,7 @@ int main(int argc, char const *argv[]){
 	int tarea; 
 		//pipes
 	int fd[2];
+	int st;
 	int terminado=0;
 	//-----------Matriz A------------------
 	printf("Matriz A\nfilas: ");
@@ -106,45 +107,38 @@ int main(int argc, char const *argv[]){
 			}		
 			for(int j=lim_inferior;j<=lim_superior;j++){
 				for(int k=0;k<colm2;k++){
-					matrizR[j][k]=0;
+					int aux=0;
 					for(int z=0;z<filam2;z++){
-						matrizR[j][k]=matrizR[j][k]+(matrizA[j][z]*matrizB[z][k]);
-						//printf("\nA-posicion(%d,%d)=%d B-posicion(%d,%d)= %d === %d -----Soy parte del hijo %d",j,z,matrizA[j][z],z,j,matrizB[z][j],matrizR[j][k],i);
+						aux=aux+(matrizA[j][z]*matrizB[z][k]);
 					}
-					printf("\n%d %d %d --soy parte del hijo %d \n",j,k,matrizR[j][k],i);
-				}
-			}
-
-			//Enviando informacion por el pipe
-			/*
-			close(fd[0]);
-			for(int j=(i*tarea)-tarea;j<(tarea*i)-1;j++){
-				for(int k=0;k<colm2;k++){
+					//Enviando informacion del pipe
+					close(fd[0]);
 					int resultado[3];
 					resultado[0]=j;
 					resultado[1]=k;
-					resultado[2]=matrizR[j][k];
-					write(fd[1],resultado,sizeof(resultado));
+					resultado[2]=aux;
+					write(fd[1],&resultado,sizeof(resultado));
+					close(fd[1]);
 				}
 			}
-				close(fd[1]);*/
+				printf("Soy el hijo %d",i);
 				break;
+
 		}
 		else if(proceso>(pid_t)0){//soy el padre
-			//close(fd[1]);
-			if(i==numprocesos-1){
-				while(wait(&status)>0);
-			}
-			/*int resultado[3];
-			while(read(fd[0],resultado,sizeof(resultado)>0)){
-				matrizR[resultado[0]][resultado[1]]=resultado[2];
-			}
-			terminado++;*/
-			//if(terminado==numprocesos){
-			//imprimir(matrizR,filam1,colm2);
-			//}
+			close(fd[1]);
+			while(wait(&status)>0);
 
-
+			int resultado_recibido[3];
+			while((st=read(fd[0],&resultado_recibido,sizeof(resultado_recibido)))>0){
+				matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];
+				printf("\nResultante --- posicion(%d,%d)=%d --Soy el hijo %d",resultado_recibido[0],resultado_recibido[1],matrizR[resultado_recibido[0]][resultado_recibido[1]],i);
+			}
+			terminado++;
+			printf("\n \t %d",terminado);
+			if(terminado==(filam1*colm2)){
+				imprimir(matrizR,filam1,colm2);		
+			}
 		}
 		else{
 			printf("Error");
