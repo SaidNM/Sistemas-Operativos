@@ -10,17 +10,11 @@ void crear_hijo(int nivel,int num_hijos, int pos, int status, int paro, int hijo
 	int pid1=fork();
 	int status=0;
 	if(pid1>0){
-		/*if(pos==0){
-			printf("Soy el padre - mi pid es %d -mi nivel es %d , ---Izquierdo \n",getpid(),nivel);
-		}
-		else{
-			printf("Soy el padre - mi pid es %d -mi nivel es %d ,---Derecho \n",getpid(),nivel);
-		}*/
+		hijos++;
 		while(wait(&status)>0);
 	}
 	else if(pid1==0){
 		nivel++;
-		hijos++;
 		if(pos==0){
 			printf("\t Soy hijo -mi pid es %d - mi padre es %d - mi nivel es %d ---Izquierdo \n",getpid(),getppid(),nivel);	
 			}
@@ -29,7 +23,6 @@ void crear_hijo(int nivel,int num_hijos, int pos, int status, int paro, int hijo
 			}
 		crear_hijo(nivel,num_hijos,pos,status,paro,hijos);
 		break;
-		
 		}
 	else{
 		printf("\nError");
