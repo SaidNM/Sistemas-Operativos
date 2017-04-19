@@ -19,6 +19,7 @@ void llenar_matriz(int ** matriz, int filas, int columnas){
 	}
 }
 void imprimir(int ** matriz, int filas, int columnas){
+	printf("\n");
 	for(int x=0;x<filas;x++){
 		for(int y=0;y<columnas;y++){
 			printf("%d",matriz[x][y]);
@@ -58,6 +59,10 @@ int main(int argc, char const *argv[]){
 	scanf("%d",&filam1);
 	printf("\nColumnas: ");
 	scanf("%d",&colm1);
+	if(filam1<=0 || colm1<=0){
+		printf("Error");
+		exit(1);
+	}
 
 	matrizA=crear(matrizA,filam1,colm1);
 	printf("\n");
@@ -69,6 +74,11 @@ int main(int argc, char const *argv[]){
 	scanf("%d",&filam2);
 	printf("\nColumnas: ");
 	scanf("%d",&colm2);
+
+	if(filam2<=0 || colm2<=0){
+		printf("Error");
+		exit(1);
+	}
 
 	matrizB=crear(matrizB,filam2,colm2);
 	printf("\n");
@@ -89,6 +99,10 @@ int main(int argc, char const *argv[]){
 	printf("\nNumero de procesos: ");
 	scanf("%d",&numprocesos);
 
+	if(numprocesos>filam1){
+		printf("\nError");
+		exit(1);
+	}
 	tarea=filam1/numprocesos;
 
 	for(int i=1;i<=numprocesos;i++){
@@ -111,17 +125,23 @@ int main(int argc, char const *argv[]){
 					for(int z=0;z<filam2;z++){
 						aux=aux+(matrizA[j][z]*matrizB[z][k]);
 					}
-					//Enviando informacion del pipe
+					matrizR[j][k]=aux;
+				}
+			}	
+				//Enviando informacion del pipe
 					close(fd[0]);
 					int resultado[3];
+			for(int j=lim_inferior;j<=lim_superior;j++){
+				for(int k=0;k<colm2;k++){
 					resultado[0]=j;
 					resultado[1]=k;
-					resultado[2]=aux;
+					resultado[2]=matrizR[j][k];
 					write(fd[1],&resultado,sizeof(resultado));
-					close(fd[1]);
 				}
 			}
-				printf("Soy el hijo %d",i);
+					close(fd[1]);
+
+				printf("\nSoy el hijo %d",i);
 				break;
 
 		}
@@ -131,12 +151,14 @@ int main(int argc, char const *argv[]){
 
 			int resultado_recibido[3];
 			while((st=read(fd[0],&resultado_recibido,sizeof(resultado_recibido)))>0){
-				matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];
-				printf("\nResultante --- posicion(%d,%d)=%d --Soy el hijo %d",resultado_recibido[0],resultado_recibido[1],matrizR[resultado_recibido[0]][resultado_recibido[1]],i);
+							matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];			
+						
+				//matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];
+				//printf("\nResultante --- posicion(%d,%d)=%d --Soy el hijo %d",resultado_recibido[0],resultado_recibido[1],matrizR[resultado_recibido[0]][resultado_recibido[1]],i);
 			}
 			terminado++;
-			printf("\n \t %d",terminado);
-			if(terminado==(filam1*colm2)){
+			//printf("\n \t %d",terminado);
+			if(terminado==numprocesos){
 				imprimir(matrizR,filam1,colm2);		
 			}
 		}
