@@ -22,7 +22,7 @@ void imprimir(int ** matriz, int filas, int columnas){
 	printf("\n");
 	for(int x=0;x<filas;x++){
 		for(int y=0;y<columnas;y++){
-			printf("%d",matriz[x][y]);
+			printf(" %d ",matriz[x][y]);
 		}
 		printf("\n");
 	}
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]){
 	int status=0;
 	int tarea; 
 		//pipes
-	int fd[2];
+
 	int st;
 	int terminado=0;
 	//-----------Matriz A------------------
@@ -99,6 +99,8 @@ int main(int argc, char const *argv[]){
 	printf("\nNumero de procesos: ");
 	scanf("%d",&numprocesos);
 
+	int fd[numprocesos][2];
+
 	if(numprocesos>filam1){
 		printf("\nError");
 		exit(1);
@@ -106,10 +108,11 @@ int main(int argc, char const *argv[]){
 	tarea=filam1/numprocesos;
 
 	for(int i=1;i<=numprocesos;i++){
-		pipe(fd);
+		pipe(fd[i-1]);
 		proceso=fork();
 		if(proceso==(pid_t)0){    // Soy el hijo 
 		//Realizando la multiplicacion de las matrices	
+			close(fd[i-1][0]);
 			int lim_inferior=(i*tarea)-tarea;
 			int lim_superior=(tarea*i)-1;
 
@@ -130,39 +133,45 @@ int main(int argc, char const *argv[]){
 			}	
 
 				//Enviando informacion del pipe------------------------------------------------
-			close(fd[0]);
+			
 			int resultado[3];
 			for(int j=lim_inferior;j<=lim_superior;j++){
 				for(int k=0;k<colm2;k++){
 					resultado[0]=j;
 					resultado[1]=k;
 					resultado[2]=matrizR[j][k];
-					write(fd[1],&resultado,sizeof(resultado));
+					write(fd[i-1][1],&resultado,sizeof(resultado));
+					//printf("\n%d\n",i-1);
 				}
 			}
-					close(fd[1]);
+					close(fd[i-1][1]);
 				//-------------------------------------------------------------------------------
 
-				printf("\nSoy el hijo %d",i);
+				//printf("\nSoy el hijo %d",i);
 				break;
 
 		}
 		else if(proceso>(pid_t)0){//soy el padre
-			close(fd[1]);
-			while(wait(&status)>0);
+			close(fd[i-1][1]);
+			//while(wait(&status)>0);
 
+			if(i==(numprocesos)){
 			int resultado_recibido[3];
-			while((st=read(fd[0],&resultado_recibido,sizeof(resultado_recibido)))>0){
+			for(int k=0;k<numprocesos;k++){
+				if(k>0){
+					close(fd[k-1][0]);
+				}
+				while((st=read(fd[k][0],&resultado_recibido,sizeof(resultado_recibido)))>0){
 				//st=read(fd[0],&resultado_recibido,sizeof(resultado_recibido));
-				matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];			
+				matrizR[resultado_recibido[0]][resultado_recibido[1]]=resultado_recibido[2];
+				terminado++;			
+				}
 			}
-
-			terminado++;
-			//printf("\n \t %d",terminado);
-			if(terminado==numprocesos){
 				imprimir(matrizR,filam1,colm2);	
+				printf("\n \t %d\n ",terminado);
 				printf("\nBye\n")	;
 			}
+			
 		}
 		else{
 			printf("Error");
