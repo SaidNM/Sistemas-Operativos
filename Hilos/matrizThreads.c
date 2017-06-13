@@ -57,7 +57,7 @@ void multiplicacion(void* arg){
 	//printf("inferior: %d superior %d i: %d",limite_inferior,limite_superior,i);
 
 
-	if(tarea>0){
+	if(filam1%numhilos>0){
 		if(i==numhilos){
 			limite_superior=filam1-1;
 		}
