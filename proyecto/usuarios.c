@@ -110,13 +110,15 @@ void *productor(void *arg){
 				Memoria[filaActual].usuario=usuarioR;
 				Memoria[filaActual].compania=companiaR;
 				strcpy(Memoria[filaActual].mensajes,mensajeR);
+				if(Memoria[filaActual].compania=='I'){
+					numProducidos++;
+				}
 				Memoria[filaActual].bandera=0;
 				if(companiaR=='T'){
 					companiaR='M';
 				} 
 				else if(companiaR=='M'){
 					companiaR='I';
-					numProducidos++;
 				}
 				else{
 					companiaR='T';
@@ -171,7 +173,7 @@ int main(int argc, char const *argv[]){
 		}
 	}
 	else{
-		//Inicializacion de los semaforos
+		//Inicializacion de los semaforos;
 		for(int i=0;i<8;i++){
 			if(i<4){
 				semctl(semid,i,SETVAL,1);

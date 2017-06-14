@@ -95,45 +95,53 @@ void signalS(int posicion){
 	}
 }
 void *consumidor(void *arg){
+	int *hilo=(int*)arg;
 	int bandera;
 	char compania;
 	int usuario;
 	char mensaje[20];
 	int filaActual=0;
-	int numConsumidos=1;
+	int numConsumidos=0;
+	
 	while(1){
-		//Vemos que usuarios es
-		if(Memoria[filaActual].usuario== 0){
-			usuario1++;
-		}else if(Memoria[filaActual].usuario== 1){
-			usuario2++;
-		}else{
-			usuario3++;
-		}
 		//Cuando se pueda escribir cerramos el semaforo
-		waitS(filaActual+TAM_MEMORIA);
-		if(Memoria[filaActual].bandera==0){		
-			printf(" Valor Semaforo Consumidor: %d\n",semctl(semid,filaActual+TAM_MEMORIA,GETVAL,NULL));
-			//Llenamos la zona de memoria
-				usuario=Memoria[filaActual].usuario;
-				compania=Memoria[filaActual].compania;
-				strcpy(mensaje,Memoria[filaActual].mensajes);
-				printf("\nUsuario:%d Compania: %c Mensaje: %s\n",usuario,compania,mensaje);
-				if(compania=='I'){
-					numConsumidos++;
-				}				
-				Memoria[filaActual].bandera=1;
-			signalS(filaActual);
-		}else{
-			signalS(filaActual+TAM_MEMORIA);
-		}
-		printf(" Valor Semaforo Productor: %d\n",semctl(semid,filaActual,GETVAL,NULL));
-		//Salimos del bucle de espera activa, para pasar a la sig. iteración del ciclo mayor
-		filaActual++;
-		if(filaActual==(TAM_MEMORIA)){
-			filaActual = 0;
-		}
-	printf("Consumidos: %d Usuario: %d",numConsumidos,usuario);
+			waitS(filaActual+TAM_MEMORIA);
+			if(Memoria[filaActual].bandera==0){		
+				if(Memoria[filaActual].usuario== 0){
+					usuario1++;
+				}else if(Memoria[filaActual].usuario== 1){
+					usuario2++;
+				}else{
+					usuario3++;
+				}
+				printf("Valor Semaforo Consumidor: %d\n",semctl(semid,filaActual+TAM_MEMORIA,GETVAL,NULL));
+				//Llenamos la zona de memoria
+					usuario=Memoria[filaActual].usuario;
+					compania=Memoria[filaActual].compania;
+					strcpy(mensaje,Memoria[filaActual].mensajes);
+					printf("\nUsuario:%d Compania: %c Mensaje: %s\n",usuario,compania,mensaje);
+					if(Memoria[filaActual].compania=='I'){
+						numConsumidos++;
+					}				
+					Memoria[filaActual].bandera=1;
+
+				printf("Consumidos: %d Usuarios: %d",numConsumidos,*hilo);
+				signalS(filaActual);
+			}else{
+				signalS(filaActual+TAM_MEMORIA);
+			}
+			printf(" Valor Semaforo Productor: %d\n",semctl(semid,filaActual,GETVAL,NULL));
+			//Salimos del bucle de espera activa, para pasar a la sig. iteración del ciclo mayor
+			filaActual++;
+			if(filaActual==(TAM_MEMORIA)){
+				filaActual = 0;
+			}
+			if((*hilo==0) && numConsumidos==210){
+				break;
+			}
+			else if((*hilo==1) && numConsumidos==210){
+				break;
+			}			
 	}//bucle true
 	pthread_exit(NULL);
 }
@@ -143,11 +151,11 @@ void *consumidor(void *arg){
 int main(int argc, char const *argv[]){
 	key_t key;
 	pthread_t id_usuarios[NUM_CONS];
-	ZonaMensajes mensaje[NUM_CONS];
 	char sms[20];
 	usuario1=0;
 	usuario2=0;
 	usuario3=0;
+	int hilos;
 
 
 	/* create a unique key */
@@ -185,7 +193,8 @@ int main(int argc, char const *argv[]){
 		shmid = CreaLigaMemoria(key);
   //Creacion de hilos 
     for(int j=0;j<NUM_CONS;j++){  //Creacion de los hilos productores
-    	pthread_create(&id_usuarios[j],NULL,consumidor,NULL);
+    	hilos=j;
+    	pthread_create(&id_usuarios[j],NULL,consumidor,(void *)&hilos);
     }
 
 
